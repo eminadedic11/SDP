@@ -1,4 +1,39 @@
-<!doctype html>
+<?php
+
+$is_invalid = false;
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    
+    $mysqli = require __DIR__ . "/database.php";
+    
+    $sql = sprintf("SELECT * FROM user
+                    WHERE email = '%s'",
+                   $mysqli->real_escape_string($_POST["email"]));
+    
+    $result = $mysqli->query($sql);
+    
+    $user = $result->fetch_assoc();
+    
+    if ($user) {
+        
+        if (password_verify($_POST["password"], $user["password_hash"])) {
+            
+                 
+            session_start();
+            
+            session_regenerate_id();
+            
+            $_SESSION["user_id"] = $user["id"];
+            
+            header("Location: homepage.php");
+            exit;
+        }
+    }
+    $is_invalid = true;
+}
+
+?>
+<!DOCTYPE html>
 <html class="no-js" lang="zxx">
 
 <head>
@@ -71,51 +106,55 @@
     </header>
     <!-- header_start  -->
 
-    <div class="login-page bg-light">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-10 offset-lg-1">
-                    <div class="bg-white shadow rounded">
-                        <div class="row">
-                            <div class="col-md-7 pe-0">
-                                <div class="form-left h-100 py-5 px-5">
-                                    <form action="" class="row g-4">
-                                            <div class="col-12">
-                                                <label>Username<span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <div class="input-group-text"><i class="bi bi-person-fill"></i></div>
-                                                    <input type="text" class="form-control" placeholder="Enter Username">
-                                                </div>
-                                            </div>
-    
-                                            <div class="col-12">
-                                                <label>Password<span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
-                                                    <input type="text" class="form-control" placeholder="Enter Password">
-                                                </div>
-                                            </div>
-    
-                                            <div class="col-sm-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="inlineFormCheck">
-                                                    <label class="form-check-label" for="inlineFormCheck">Remember me</label>
-                                                </div>
-                                            </div>
-    
-                                            <div class="col-sm-6">
-                                                <a href="#" class="float-end text-primary">Forgot Password?</a>
-                                            </div>
-                                            <div class="col-12 mt-3">
-                                                <p class="text-center">Don't have an account? <a href="signup.html" class="text-primary">Register here</a></p>
-                                            </div>
+       
+    <?php if ($is_invalid): ?>
+        <em>Invalid login</em>
+    <?php endif; ?>
 
-                                            <div class="col-12">
-                                                <a href="homepage.html" class="btn btn-primary px-4 float-end mt-4">Login</a>
+    <form method="post">
+        <div class="login-page bg-light">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-10 offset-lg-1">
+                        <div class="bg-white shadow rounded">
+                            <div class="row">
+                                <div class="col-md-7 pe-0">
+                                    <div class="form-left h-100 py-5 px-5">
+                                        <div>
+                                            <label>Email<span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <div class="input-group-text"><i class="bi bi-person-fill"></i></div>
+                                                <input type="email" name="email" id="email" class="form-control" placeholder="Enter Email" value="<?= htmlspecialchars($_POST["email"] ?? "") ?>">
                                             </div>
-                                    </form>
+                                        </div>
+    
+                                        <div>
+                                            <label>Password<span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
+                                                <input type="password" name="password" id="password" class="form-control" placeholder="Enter Password">
+                                            </div>
+                                        </div>
+    
+                                        <div class="col-sm-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="inlineFormCheck">
+                                                <label class="form-check-label" for="inlineFormCheck">Remember me</label>
+                                            </div>
+                                        </div>
+    
+                                        <div class="col-sm-6">
+                                            <a href="#" class="float-end text-primary">Forgot Password?</a>
+                                        </div>
+                                        <div class="col-12 mt-3">
+                                            <p class="text-center">Don't have an account? <a href="signup.html" class="text-primary">Register here</a></p>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <button class="btn btn-primary px-4 float-end mt-4">Login</button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
                                 <div class="col-md-5 ps-0 d-none d-md-block">
                                     <div class="form-right h-100 text-center pt-5">
                                         <img src="img/cat1.jpg" alt="Welcome Image" class="img-fluid">
@@ -128,7 +167,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
     <!-- JS here -->
     <script src="js/vendor/modernizr-3.5.0.min.js"></script>
