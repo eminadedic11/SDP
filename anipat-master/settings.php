@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+if (isset($_POST["logout"])) {
+    session_destroy();
+    header("Location: index.html");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -127,7 +136,7 @@
                      </div>
                      <div class="form-group">
                         <button type="submit" class="button button-contactForm btn_1 boxed-btn">Save Changes</button>
-                        <a href="index.html" class="button button-contactForm btn_1 boxed-btn">Logout</a>
+                        <button type="submit" class="button button-contactForm btn_1 boxed-btn" name="logout">Logout</button>
 
                      </div>
                   </form>
