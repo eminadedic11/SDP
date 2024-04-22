@@ -1,41 +1,40 @@
-const validation = new JustValidate("#signup");
+document.addEventListener("DOMContentLoaded", function() {
+    const validation = new JustValidate("#signup");
 
-validation
-    .addField("#full_name", [
-        {
-            rule: "required"
-        }
-    ])
-    .addField("#email", [
-        {
-            rule: "required"
-        },
-        {
-            rule: "email"
-        },
-        {
-            validator: (value) => () => {
-                return fetch("validate-email.php?email=" + encodeURIComponent(value))
-                       .then(function(response) {
-                           return response.json();
-                       })
-                       .then(function(json) {
-                           return json.available;
-                       });
-            },
-            errorMessage: "email already taken"
-        }
-    ])
-    .addField("#password", [
-        {
-            rule: "required"
-        },
-        {
-            rule: "password"
-        }
-    ])
+    validation
+        .addField("#name", [
+            { rule: "required", errorMessage: "Full Name is required" }
+        ])
+        .addField("#email", [
+            { rule: "required", errorMessage: "Email is required" },
+            { rule: "email", errorMessage: "Please enter a valid email address" }
+        ])
+        .addField("#password", [
+            { rule: "required", errorMessage: "Password is required" },
+        ])
+        .addField("#phone", [
+            { rule: "required", errorMessage: "Phone Number is required" },
+        ])
+        .addField("#experience", [
+            { rule: "required", errorMessage: "Experience is required" }
+        ]);
 
-    .onSuccess((event) => {
-        document.getElementById("signup").submit();
+    validation.onSuccess(() => {
+        const emailField = document.querySelector("#email");
+        const emailValue = emailField.value.trim();
+        fetch("validate-email.php?email=" + encodeURIComponent(emailValue))
+            .then(response => response.json())
+            .then(data => {
+                if (!data.available) {
+                    const errorMessage = document.createElement("div");
+                    errorMessage.classList.add("js-error-message");
+                    errorMessage.classList.add("error-message");
+                    errorMessage.textContent = "Email already taken";
+                    emailField.parentElement.appendChild(errorMessage);
+                } else {
+                    document.getElementById("signup").submit();
+                }
+            })
+            .catch(error => console.error("Error:", error));
     });
-    
+});
